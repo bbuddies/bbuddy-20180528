@@ -6,7 +6,6 @@ import com.odde.bbuddy.transaction.repo.Transaction;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.odde.bbuddy.transaction.builder.TransactionBuilder.defaultTransaction;
 import static com.odde.bbuddy.transaction.repo.Transaction.Type;
 import static com.odde.bbuddy.transaction.repo.Transaction.Type.Income;
 import static com.odde.bbuddy.transaction.repo.Transaction.Type.Outcome;
@@ -34,7 +33,7 @@ public class SummaryOfTransactionsBuilder {
     }
 
     private boolean addTransaction(int amount, Type type) {
-        return all.add(defaultTransaction().type(type).amount(amount).build());
+        return all.add(TransactionBuilder.defaultTransaction().type(type).amount(amount).build());
     }
 
 }

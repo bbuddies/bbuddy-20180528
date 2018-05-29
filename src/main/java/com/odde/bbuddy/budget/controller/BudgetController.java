@@ -14,13 +14,13 @@ public class BudgetController {
     @Autowired
     Budgets budgets;
 
-    @GetMapping("/budgets/add")
+    @GetMapping("/budget/add")
     public String addBudget() {
         return "/budgets/add";
     }
 
-    @PostMapping("/budgets/add")
-    public String submitAddBudget(@RequestParam(value = "amount", required = true)int amount,
+    @PostMapping("/budget/add")
+    public String submitAddBudget(@RequestParam(value = "amount", required = true)Double amount,
                                   @RequestParam(value = "month", required = true)String month) {
 
         Budget budget = new Budget();

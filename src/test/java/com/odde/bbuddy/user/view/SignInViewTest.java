@@ -23,7 +23,6 @@ public class SignInViewTest {
     @Test
     public void message_when_logout() {
         view = defaultSignInView().logoutMessage("a logout message").build();
-
         view.display(defaultAuthenticationResult().logout("something logout").build());
 
         assertMessageEquals("a logout message");

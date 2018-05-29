@@ -16,4 +16,6 @@ public class Urls {
     public static final String SIGNOUT = "/signout";
     public static final String HOME = "home";
     public static final String ROOT = "/";
+
+    public static final String BUDGET="/budget";
 }

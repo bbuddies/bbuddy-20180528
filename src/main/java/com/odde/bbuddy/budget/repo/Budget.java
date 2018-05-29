@@ -19,6 +19,6 @@ public class Budget {
     private long id;
 
     private String month;
-    private int amount;
+    private Double amount;
 
 }

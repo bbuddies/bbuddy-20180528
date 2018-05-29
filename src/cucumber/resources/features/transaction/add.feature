@@ -18,3 +18,5 @@ Feature: Add Transactions
     Then there is an error message for blank description
     And there is an error message for invalid date date
     And there is an error message for null amount
+  And there is an error message for duplicate   amount
+    And there is an error message for negative amount
