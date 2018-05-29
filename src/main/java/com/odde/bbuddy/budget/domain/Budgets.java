@@ -42,8 +42,12 @@ public class Budgets implements FieldCheck<String> {
 
         int sum = 0;
 
-        String startDateString = startTime.getYear() + "-" + startTime.getMonthValue();
-        String stopDateString = stopTime.getYear() + "-" + stopTime.getMonthValue();
+        String startDateString = startTime.getYear() + "-" + String.format("%02d", startTime.getMonthValue());
+        String stopDateString = stopTime.getYear() + "-" + String.format("%02d", stopTime.getMonthValue());
+
+        if(startDateString.compareTo(stopDateString) > 0){
+            return 0;
+        }
 
         Budget startMonthValue = null;
         Budget stopMonthValue = null;
@@ -52,10 +56,10 @@ public class Budgets implements FieldCheck<String> {
             Budget budget = budgets.get(i);
             if(budget.getMonth().equals(startDateString)){
                 startMonthValue = budget;
-            }else if(budget.getMonth().equals(stopMonthValue)){
+            }else if(budget.getMonth().equals(stopDateString)){
                 stopMonthValue = budget;
-            }else if(budget.getMonth().compareTo(startDateString) < 0 &&
-                    budget.getMonth().compareTo(stopDateString) > 0){
+            }else if(budget.getMonth().compareTo(startDateString) > 0 &&
+                    budget.getMonth().compareTo(stopDateString) < 0){
                 sum += budget.getAmount();
             }
         }
@@ -67,7 +71,7 @@ public class Budgets implements FieldCheck<String> {
             LocalDate firstMonthLastDay = startTime.with(TemporalAdjusters.lastDayOfMonth());
             sum += getMonthBudget(startTime, firstMonthLastDay, startMonthValue);
 
-            LocalDate lastMonthFirstDay = startTime.with(TemporalAdjusters.firstDayOfMonth());
+            LocalDate lastMonthFirstDay = stopTime.with(TemporalAdjusters.firstDayOfMonth());
 
             sum += getMonthBudget(lastMonthFirstDay, stopTime, stopMonthValue);
         }
