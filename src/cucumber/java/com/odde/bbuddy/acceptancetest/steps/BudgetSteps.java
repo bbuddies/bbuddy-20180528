@@ -2,13 +2,10 @@ package com.odde.bbuddy.acceptancetest.steps;
 
 import com.odde.bbuddy.acceptancetest.data.budget.EditableBudget;
 import com.odde.bbuddy.acceptancetest.driver.UiDriver;
-import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-
-import static com.odde.bbuddy.acceptancetest.steps.AssertionHelper.assertListDeepEquals;
 
 public class BudgetSteps {
 
@@ -25,9 +22,9 @@ public class BudgetSteps {
         driver.clickByText("Add");
     }
 
-    @Then("^the following budget will be created$")
-    public void the_following_budget_will_be_created(List<EditableBudget> expected) throws Throwable {
-        assertListDeepEquals(expected, budget)
-    }
+//    @Then("^the following budget will be created$")
+//    public void the_following_budget_will_be_created(List<EditableBudget> expected) throws Throwable {
+//        assertListDeepEquals(expected, budget)
+//    }
 
 }

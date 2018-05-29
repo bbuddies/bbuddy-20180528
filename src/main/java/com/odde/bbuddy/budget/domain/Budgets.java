@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.temporal.TemporalAdjuster;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
@@ -21,7 +22,9 @@ public class Budgets implements FieldCheck<String> {
     private final BudgetRepo budgetRepo;
 
     @Autowired
-    public Budgets(BudgetRepo budgetRepo) {this.budgetRepo = budgetRepo; }
+    public Budgets(BudgetRepo budgetRepo) {
+        this.budgetRepo = budgetRepo;
+    }
 
     public PostActions add(Budget budget) {
         try {
@@ -33,7 +36,9 @@ public class Budgets implements FieldCheck<String> {
     }
 
     @Override
-    public boolean isValueUnique(String month) {return !budgetRepo.existsByName(month);}
+    public boolean isValueUnique(String month) {
+        return !budgetRepo.existsByName(month);
+    }
 
 
     public int queryBudgetSum(LocalDate start, LocalDate end) {
@@ -57,15 +62,14 @@ public class Budgets implements FieldCheck<String> {
 
         if (months == 0) {
             int days = period.getDays();
-            if (days < 0)
-            {
+            if (days < 0) {
                 return 0;
             }
 
-            String startMonth = start.getYear() + "-" + start.getMonthValue();
-            for (Budget budget: budgets) {
+            String startMonth = start.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+            for (Budget budget : budgets) {
                 if (startMonth.equals(budget.getMonth())) {
-                    return (days + 1) / daysOfStartMonth * budget.getAmount();
+                    return budget.getAmount() / daysOfStartMonth * (days + 1);
                 }
             }
         }
@@ -74,24 +78,29 @@ public class Budgets implements FieldCheck<String> {
         int sum = 0;
         int monthBudget;
         if (months > 0) {
-            for (int i = 0; i < months; i++) {
-                month += i;
-                String startMonth = start.getYear() + "-" + month;
-                for (Budget budget: budgets) {
-                   if (startMonth.equals(budget.getMonth())) {
-                       if (i == 0) {
-                           monthBudget = (daysOfStartMonth + 1 - start.getDayOfMonth()) / daysOfStartMonth * budget.getAmount();
-                           sum += monthBudget;
-                       } else if (months == 1) {
-                           monthBudget = end.getDayOfMonth() / daysOfEndMonth * budget.getAmount();
-                           sum += monthBudget;
-                       } else {
-                           sum += budget.getAmount();
-                       }
-                   }
+//            for (int i = 0; i < months; i++) {
+//                month += i;
+                String startMonth = start.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+                String endMonth = end.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+                for (Budget budget : budgets) {
+                    if (startMonth.equals(budget.getMonth())) {
+//                        if (i == 0) {
+                            monthBudget = budget.getAmount() / daysOfStartMonth * (daysOfStartMonth + 1 - start.getDayOfMonth());
+                            sum += monthBudget;
+//                        } else if (months == 1) {
+//                            monthBudget = end.getDayOfMonth() / daysOfEndMonth * budget.getAmount();
+//                            sum += monthBudget;
+//                        } else {
+//                            sum += budget.getAmount();
+//                        }
+                    } else if (endMonth.equals(budget.getMonth())) {
+                        sum += budget.getAmount() / daysOfEndMonth * (YearMonth.parse(budget.getMonth()).atDay(1).until(end).getDays() + 1);
+                    } else if (start.isBefore(YearMonth.parse(budget.getMonth()).atDay(1)) && end.isAfter(YearMonth.parse(budget.getMonth()).atEndOfMonth())) {
+                        sum += budget.getAmount();
+                    }
                 }
             }
-        }
+//        }
 
         return sum;
     }
