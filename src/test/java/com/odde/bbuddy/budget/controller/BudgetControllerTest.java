@@ -26,10 +26,7 @@ public class BudgetControllerTest {
 
         ArgumentCaptor<Budget> captor = ArgumentCaptor.forClass(Budget.class);
         verify(mockBudgets).add(captor.capture());
-        assertThat(captor.getValue()).isEqualToComparingFieldByField(new Budget() {{
-            setMonth("2017-09");
-            setAmount(1000);
-        }});
+        assertThat(captor.getValue()).isEqualToComparingFieldByField(new Budget("2017-09", 1000));
 
         //assertThat(controller.submitAddBudget("2000", "12").instanceof(SuccessPostActions));
     }

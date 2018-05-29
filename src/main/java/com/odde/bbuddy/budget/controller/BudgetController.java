@@ -27,9 +27,7 @@ public class BudgetController {
     public String submitAddBudget(@RequestParam(value = "amount", required = true)int amount,
                                   @RequestParam(value = "month", required = true)String month) {
 
-        Budget budget = new Budget();
-        budget.setAmount(amount);
-        budget.setMonth(month);
+        Budget budget = new Budget(month, amount);
         budgets.add(budget);
 
         return "/budgets/index";

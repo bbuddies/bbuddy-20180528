@@ -13,6 +13,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "budgets")
 public class Budget {
+    public Budget(String month, int amount) {
+        this.month = month;
+        this.amount = amount;
+    }
 
     @Id
     @GeneratedValue

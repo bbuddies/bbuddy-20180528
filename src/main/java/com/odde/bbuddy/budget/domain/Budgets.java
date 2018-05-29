@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.odde.bbuddy.common.callback.PostActionsFactory.failed;
@@ -35,65 +35,67 @@ public class Budgets implements FieldCheck<String> {
     @Override
     public boolean isValueUnique(String month) {return !budgetRepo.existsByName(month);}
 
-
-    public int queryBudgetSum(LocalDate start, LocalDate end) {
+    public int queryBudgets(LocalDate start, LocalDate end) {
         if (end.isBefore(start)) {
             return 0;
         }
 
-        List<Budget> budgets = budgetRepo.findAll();
+        String startString = start.getYear() + "-" + start.getMonthValue();
+        String endString = end.getYear() + "-" + end.getMonthValue();
 
-        Period period = start.until(end);
-        int months = period.getMonths();
+        List<Budget> budgets = new ArrayList<>();
 
-
-        if (months < 0) {
-            return 0;
-        }
-
-
-        int daysOfStartMonth = start.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
-        int daysOfEndMonth = end.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
-
-        if (months == 0) {
-            int days = period.getDays();
-            if (days < 0)
-            {
-                return 0;
+        for (Budget budget : budgetRepo.findAll()) {
+            String month = budget.getMonth();
+            String[] yearAndMonth = month.split("-");
+            if(yearAndMonth.length != 2) {
+                break;
             }
-
-            String startMonth = start.getYear() + "-" + start.getMonthValue();
-            for (Budget budget: budgets) {
-                if (startMonth.equals(budget.getMonth())) {
-                    return (days + 1) / daysOfStartMonth * budget.getAmount();
-                }
+            int y = Integer.parseInt(yearAndMonth[0]);
+            int m = Integer.parseInt(yearAndMonth[1]);
+            if (!isBefore(y, m, start.getYear(), start.getMonthValue())
+                    && !isBefore(end.getYear(), end.getMonthValue(), y, m)) {
+               budgets.add(budget);
             }
         }
 
-        int month = start.getMonthValue();
         int sum = 0;
-        int monthBudget;
-        if (months > 0) {
-            for (int i = 0; i < months; i++) {
-                month += i;
-                String startMonth = start.getYear() + "-" + month;
-                for (Budget budget: budgets) {
-                   if (startMonth.equals(budget.getMonth())) {
-                       if (i == 0) {
-                           monthBudget = (daysOfStartMonth + 1 - start.getDayOfMonth()) / daysOfStartMonth * budget.getAmount();
-                           sum += monthBudget;
-                       } else if (months == 1) {
-                           monthBudget = end.getDayOfMonth() / daysOfEndMonth * budget.getAmount();
-                           sum += monthBudget;
-                       } else {
-                           sum += budget.getAmount();
-                       }
-                   }
-                }
-            }
+        for (Budget budget : budgets) {
+           int amount = budget.getAmount();
+           sum += amount;
+           if (budget.getMonth().equals(startString)) {
+               sum -= beforeAmount(start, amount);
+           }
+           if (budget.getMonth().equals(endString)) {
+               sum -= lastAmount(end, amount);
+           }
         }
 
         return sum;
+    }
+
+    private boolean isBefore(int y1, int m1, int y2, int m2) {
+        if (y1 < y2) {
+            return true;
+        }
+
+        if (m1 < m2) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private int beforeAmount(LocalDate start, int amount) {
+        int between = start.getDayOfMonth() - 1;
+        int daysOfMonth = start.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+        return between * amount / daysOfMonth;
+    }
+
+    private int lastAmount(LocalDate end, int amount) {
+        int daysOfMonth = end.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+        int between = daysOfMonth - end.getDayOfMonth();
+        return between * amount / daysOfMonth;
     }
 }
 
