@@ -11,8 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class BudgetController {
 
-    @Autowired
     Budgets budgets;
+
+    @Autowired
+    public BudgetController(Budgets budgets){
+        this.budgets = budgets;
+    }
 
     @GetMapping("/budgets/add")
     public String addBudget() {
