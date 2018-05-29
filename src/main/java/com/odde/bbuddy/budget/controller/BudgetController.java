@@ -8,11 +8,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
+
 @Controller
 public class BudgetController {
 
+    private Budgets budgets;
+
     @Autowired
-    Budgets budgets;
+    public BudgetController(Budgets budget){
+        this.budgets = budget;
+    }
 
     @GetMapping("/budgets/add")
     public String addBudget() {
@@ -26,8 +32,9 @@ public class BudgetController {
         Budget budget = new Budget();
         budget.setAmount(amount);
         budget.setMonth(month);
+
         budgets.add(budget);
 
-        return "/budgets/index";
+        return "/budgets/add";
     }
 }
