@@ -43,10 +43,10 @@ public class Budgets implements FieldCheck<String> {
             return 0;
         }
 
-        return getSum(new Period(start, end));
+        return queryBudgetSum(new Period(start, end));
     }
 
-    private int getSum(Period period) {
+    private int queryBudgetSum(Period period) {
         int months = period.getMonths();
 
         List<Budget> budgets = budgetRepo.findAll();
@@ -62,17 +62,22 @@ public class Budgets implements FieldCheck<String> {
         int sum = 0;
         if (months > 0) {
             for (Budget budget : budgets) {
-                if (YearMonth.from(period.getStart()).equals(budget.getYearMonth())) {
-                    sum += budget.getDailyAmount() * new Period(period.getStart(), budget.getEnd()).getDayCount();
-                } else if (YearMonth.from(period.getEnd()).equals(budget.getYearMonth())) {
-                    sum += budget.getDailyAmount() * new Period(budget.getStart(), period.getEnd()).getDayCount();
-                } else if (period.getStart().isBefore(budget.getStart()) && period.getEnd().isAfter(budget.getEnd())) {
-                    sum += budget.getDailyAmount() * new Period(budget.getStart(), budget.getEnd()).getDayCount();
-                }
+                sum += getAmount(period, budget);
             }
         }
 
         return sum;
+    }
+
+    private int getAmount(Period period, Budget budget) {
+        if (YearMonth.from(period.getStart()).equals(budget.getYearMonth())) {
+            return budget.getDailyAmount() * new Period(period.getStart(), budget.getEnd()).getDayCount();
+        } else if (YearMonth.from(period.getEnd()).equals(budget.getYearMonth())) {
+            return budget.getDailyAmount() * new Period(budget.getStart(), period.getEnd()).getDayCount();
+        } else if (period.getStart().isBefore(budget.getStart()) && period.getEnd().isAfter(budget.getEnd())) {
+            return budget.getDailyAmount() * new Period(budget.getStart(), budget.getEnd()).getDayCount();
+        }
+        return 0;
     }
 
 }
