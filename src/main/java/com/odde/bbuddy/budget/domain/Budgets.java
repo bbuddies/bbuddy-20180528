@@ -51,15 +51,9 @@ public class Budgets implements FieldCheck<String> {
         List<Budget> budgets = budgetRepo.findAll();
 
         if (months == 0) {
-            int days = period.getDays();
-            if (days < 0) {
-                return 0;
-            }
-
-            String startMonth = start.format(DateTimeFormatter.ofPattern("yyyy-MM"));
             for (Budget budget : budgets) {
-                if (startMonth.equals(budget.getMonth())) {
-                    return budget.getAmount() / start.lengthOfMonth() * (days + 1);
+                if (YearMonth.from(start).equals(budget.getYearMonth())) {
+                    return budget.getAmount() / start.lengthOfMonth() * (period.getDays() + 1);
                 }
             }
         }
@@ -84,8 +78,8 @@ public class Budgets implements FieldCheck<String> {
 //                            sum += budget.getAmount();
 //                        }
                     } else if (endMonth.equals(budget.getMonth())) {
-                        sum += budget.getAmount() / end.lengthOfMonth() * (YearMonth.parse(budget.getMonth()).atDay(1).until(end).getDays() + 1);
-                    } else if (start.isBefore(YearMonth.parse(budget.getMonth()).atDay(1)) && end.isAfter(YearMonth.parse(budget.getMonth()).atEndOfMonth())) {
+                        sum += budget.getAmount() / end.lengthOfMonth() * (budget.getYearMonth().atDay(1).until(end).getDays() + 1);
+                    } else if (start.isBefore(budget.getYearMonth().atDay(1)) && end.isAfter(budget.getYearMonth().atEndOfMonth())) {
                         sum += budget.getAmount();
                     }
                 }
@@ -94,5 +88,6 @@ public class Budgets implements FieldCheck<String> {
 
         return sum;
     }
+
 }
 

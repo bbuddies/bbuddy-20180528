@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.YearMonth;
 
 @Getter
 @Setter
@@ -21,4 +22,7 @@ public class Budget {
     private String month;
     private int amount;
 
+    public YearMonth getYearMonth() {
+        return YearMonth.parse(month);
+    }
 }
