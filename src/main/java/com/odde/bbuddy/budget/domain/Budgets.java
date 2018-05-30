@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import static com.odde.bbuddy.common.callback.PostActionsFactory.failed;
@@ -46,19 +45,10 @@ public class Budgets implements FieldCheck<String> {
             return 0;
         }
 
-        List<Budget> budgets = budgetRepo.findAll();
-
         Period period = start.until(end);
         int months = period.getMonths();
 
-
-        if (months < 0) {
-            return 0;
-        }
-
-
-        int daysOfStartMonth = start.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
-        int daysOfEndMonth = end.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+        List<Budget> budgets = budgetRepo.findAll();
 
         if (months == 0) {
             int days = period.getDays();
@@ -69,7 +59,7 @@ public class Budgets implements FieldCheck<String> {
             String startMonth = start.format(DateTimeFormatter.ofPattern("yyyy-MM"));
             for (Budget budget : budgets) {
                 if (startMonth.equals(budget.getMonth())) {
-                    return budget.getAmount() / daysOfStartMonth * (days + 1);
+                    return budget.getAmount() / start.lengthOfMonth() * (days + 1);
                 }
             }
         }
@@ -85,7 +75,7 @@ public class Budgets implements FieldCheck<String> {
                 for (Budget budget : budgets) {
                     if (startMonth.equals(budget.getMonth())) {
 //                        if (i == 0) {
-                            monthBudget = budget.getAmount() / daysOfStartMonth * (daysOfStartMonth + 1 - start.getDayOfMonth());
+                            monthBudget = budget.getAmount() / start.lengthOfMonth() * (start.lengthOfMonth() + 1 - start.getDayOfMonth());
                             sum += monthBudget;
 //                        } else if (months == 1) {
 //                            monthBudget = end.getDayOfMonth() / daysOfEndMonth * budget.getAmount();
@@ -94,7 +84,7 @@ public class Budgets implements FieldCheck<String> {
 //                            sum += budget.getAmount();
 //                        }
                     } else if (endMonth.equals(budget.getMonth())) {
-                        sum += budget.getAmount() / daysOfEndMonth * (YearMonth.parse(budget.getMonth()).atDay(1).until(end).getDays() + 1);
+                        sum += budget.getAmount() / end.lengthOfMonth() * (YearMonth.parse(budget.getMonth()).atDay(1).until(end).getDays() + 1);
                     } else if (start.isBefore(YearMonth.parse(budget.getMonth()).atDay(1)) && end.isAfter(YearMonth.parse(budget.getMonth()).atEndOfMonth())) {
                         sum += budget.getAmount();
                     }
