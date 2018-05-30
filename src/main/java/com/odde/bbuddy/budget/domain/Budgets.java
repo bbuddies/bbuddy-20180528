@@ -54,7 +54,7 @@ public class Budgets implements FieldCheck<String> {
         if (months == 0) {
             for (Budget budget : budgets) {
                 if (YearMonth.from(period.getStart()).equals(budget.getYearMonth())) {
-                    return budget.getAmount() / period.getStart().lengthOfMonth() * period.getDayCount();
+                    return budget.getDailyAmount() * period.getDayCount();
                 }
             }
         }
@@ -63,11 +63,11 @@ public class Budgets implements FieldCheck<String> {
         if (months > 0) {
             for (Budget budget : budgets) {
                 if (YearMonth.from(period.getStart()).equals(budget.getYearMonth())) {
-                    sum += budget.getAmount() / period.getStart().lengthOfMonth() * new Period(period.getStart(), budget.getEnd()).getDayCount();
+                    sum += budget.getDailyAmount() * new Period(period.getStart(), budget.getEnd()).getDayCount();
                 } else if (YearMonth.from(period.getEnd()).equals(budget.getYearMonth())) {
-                    sum += budget.getAmount() / period.getEnd().lengthOfMonth() * new Period(budget.getStart(), period.getEnd()).getDayCount();
+                    sum += budget.getDailyAmount() * new Period(budget.getStart(), period.getEnd()).getDayCount();
                 } else if (period.getStart().isBefore(budget.getStart()) && period.getEnd().isAfter(budget.getEnd())) {
-                    sum += budget.getAmount() / budget.getStart().lengthOfMonth() * new Period(budget.getStart(), budget.getEnd()).getDayCount();
+                    sum += budget.getDailyAmount() * new Period(budget.getStart(), budget.getEnd()).getDayCount();
                 }
             }
         }

@@ -34,4 +34,8 @@ public class Budget {
     public LocalDate getEnd() {
         return getYearMonth().atEndOfMonth();
     }
+
+    public int getDailyAmount() {
+        return amount / getStart().lengthOfMonth();
+    }
 }
