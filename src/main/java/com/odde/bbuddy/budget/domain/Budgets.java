@@ -59,7 +59,7 @@ public class Budgets implements FieldCheck<String> {
         if (months > 0) {
             for (Budget budget : budgets) {
                 if (YearMonth.from(start).equals(budget.getYearMonth())) {
-                    sum += budget.getAmount() / start.lengthOfMonth() * (start.lengthOfMonth() + 1 - start.getDayOfMonth());
+                    sum += budget.getAmount() / start.lengthOfMonth() * (start.until(budget.getEnd()).getDays() + 1);
                 } else if (YearMonth.from(end).equals(budget.getYearMonth())) {
                     sum += budget.getAmount() / end.lengthOfMonth() * (budget.getStart().until(end).getDays() + 1);
                 } else if (start.isBefore(budget.getStart()) && end.isAfter(budget.getEnd())) {
