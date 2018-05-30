@@ -1,5 +1,6 @@
 package com.odde.bbuddy.budget.repo;
 
+import com.odde.bbuddy.budget.domain.Period;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,5 +38,13 @@ public class Budget {
 
     public int getDailyAmount() {
         return amount / getStart().lengthOfMonth();
+    }
+
+    public Period getPeriod() {
+        return new Period(getStart(), getEnd());
+    }
+
+    public int getOverlappingAmount(Period period) {
+        return getDailyAmount() * period.getOverlappingDayCount(getPeriod());
     }
 }
