@@ -24,23 +24,23 @@ public class Budget {
     private String month;
     private int amount;
 
-    public YearMonth getYearMonth() {
+    private YearMonth getYearMonth() {
         return YearMonth.parse(month);
     }
 
-    public LocalDate getStart() {
+    private LocalDate getStart() {
         return getYearMonth().atDay(1);
     }
 
-    public LocalDate getEnd() {
+    private LocalDate getEnd() {
         return getYearMonth().atEndOfMonth();
     }
 
-    public int getDailyAmount() {
+    private int getDailyAmount() {
         return amount / getStart().lengthOfMonth();
     }
 
-    public Period getPeriod() {
+    private Period getPeriod() {
         return new Period(getStart(), getEnd());
     }
 

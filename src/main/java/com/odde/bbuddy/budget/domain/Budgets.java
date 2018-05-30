@@ -7,10 +7,6 @@ import com.odde.bbuddy.common.validator.FieldCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.List;
-
 import static com.odde.bbuddy.common.callback.PostActionsFactory.failed;
 import static com.odde.bbuddy.common.callback.PostActionsFactory.success;
 
@@ -38,35 +34,10 @@ public class Budgets implements FieldCheck<String> {
     }
 
 
-    public int queryBudgetSum(LocalDate start, LocalDate end) {
-        if (end.isBefore(start)) {
-            return 0;
-        }
-
-        return queryBudgetSum(new Period(start, end));
-    }
-
-    private int queryBudgetSum(Period period) {
-        int months = period.getMonths();
-
-        List<Budget> budgets = budgetRepo.findAll();
-
-        if (months == 0) {
-            for (Budget budget : budgets) {
-                if (YearMonth.from(period.getStart()).equals(budget.getYearMonth())) {
-                    return budget.getDailyAmount() * period.getDayCount();
-                }
-            }
-        }
-
-        int sum = 0;
-        if (months > 0) {
-            for (Budget budget : budgets) {
-                sum += budget.getOverlappingAmount(period);
-            }
-        }
-
-        return sum;
+    public int queryBudgetSum(Period period) {
+        return budgetRepo.findAll().stream()
+                .mapToInt(budget -> budget.getOverlappingAmount(period))
+                .sum();
     }
 
 }

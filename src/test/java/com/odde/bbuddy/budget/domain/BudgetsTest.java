@@ -117,7 +117,7 @@ public class BudgetsTest {
     }
 
     private int getSum(String start, String end) {
-        return budgets.queryBudgetSum(LocalDate.parse(start), LocalDate.parse(end));
+        return budgets.queryBudgetSum(new Period(LocalDate.parse(start), LocalDate.parse(end)));
     }
 
     private void givenBudgets(Budget... budgets) {
