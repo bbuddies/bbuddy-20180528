@@ -70,14 +70,17 @@ public class Budgets implements FieldCheck<String> {
     }
 
     private int getAmount(Period period, Budget budget) {
-        if (YearMonth.from(period.getStart()).equals(budget.getYearMonth())) {
-            return budget.getDailyAmount() * new Period(period.getStart(), budget.getEnd()).getDayCount();
-        } else if (YearMonth.from(period.getEnd()).equals(budget.getYearMonth())) {
-            return budget.getDailyAmount() * new Period(budget.getStart(), period.getEnd()).getDayCount();
-        } else if (period.getStart().isBefore(budget.getStart()) && period.getEnd().isAfter(budget.getEnd())) {
-            return budget.getDailyAmount() * new Period(budget.getStart(), budget.getEnd()).getDayCount();
-        }
-        return 0;
+        return budget.getDailyAmount() * getOverlappingDayCount(period, budget);
+    }
+
+    private int getOverlappingDayCount(Period period, Budget budget) {
+        LocalDate overlappingStart = period.getStart().isAfter(budget.getStart()) ? period.getStart() : budget.getStart();
+        LocalDate overlappingEnd = period.getEnd().isBefore(budget.getEnd()) ? period.getEnd() : budget.getEnd();
+
+        if (overlappingStart.isAfter(overlappingEnd))
+            return 0;
+
+        return new Period(overlappingStart, overlappingEnd).getDayCount();
     }
 
 }
