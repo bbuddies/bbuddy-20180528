@@ -43,14 +43,18 @@ public class Budgets implements FieldCheck<String> {
             return 0;
         }
 
-        int months = start.until(end).getMonths();
+        return getSum(new Period(start, end));
+    }
+
+    private int getSum(Period period) {
+        int months = period.getMonths();
 
         List<Budget> budgets = budgetRepo.findAll();
 
         if (months == 0) {
             for (Budget budget : budgets) {
-                if (YearMonth.from(start).equals(budget.getYearMonth())) {
-                    return budget.getAmount() / start.lengthOfMonth() * (start.until(end).getDays() + 1);
+                if (YearMonth.from(period.getStart()).equals(budget.getYearMonth())) {
+                    return budget.getAmount() / period.getStart().lengthOfMonth() * period.getDayCount();
                 }
             }
         }
@@ -58,12 +62,12 @@ public class Budgets implements FieldCheck<String> {
         int sum = 0;
         if (months > 0) {
             for (Budget budget : budgets) {
-                if (YearMonth.from(start).equals(budget.getYearMonth())) {
-                    sum += budget.getAmount() / start.lengthOfMonth() * (start.until(budget.getEnd()).getDays() + 1);
-                } else if (YearMonth.from(end).equals(budget.getYearMonth())) {
-                    sum += budget.getAmount() / end.lengthOfMonth() * (budget.getStart().until(end).getDays() + 1);
-                } else if (start.isBefore(budget.getStart()) && end.isAfter(budget.getEnd())) {
-                    sum += budget.getAmount() / budget.getStart().lengthOfMonth() * (budget.getStart().until(budget.getEnd()).getDays() + 1);
+                if (YearMonth.from(period.getStart()).equals(budget.getYearMonth())) {
+                    sum += budget.getAmount() / period.getStart().lengthOfMonth() * new Period(period.getStart(), budget.getEnd()).getDayCount();
+                } else if (YearMonth.from(period.getEnd()).equals(budget.getYearMonth())) {
+                    sum += budget.getAmount() / period.getEnd().lengthOfMonth() * new Period(budget.getStart(), period.getEnd()).getDayCount();
+                } else if (period.getStart().isBefore(budget.getStart()) && period.getEnd().isAfter(budget.getEnd())) {
+                    sum += budget.getAmount() / budget.getStart().lengthOfMonth() * new Period(budget.getStart(), budget.getEnd()).getDayCount();
                 }
             }
         }
