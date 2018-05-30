@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.odde.bbuddy.common.callback.PostActionsFactory.failed;
@@ -45,46 +43,30 @@ public class Budgets implements FieldCheck<String> {
             return 0;
         }
 
-        Period period = start.until(end);
-        int months = period.getMonths();
+        int months = start.until(end).getMonths();
 
         List<Budget> budgets = budgetRepo.findAll();
 
         if (months == 0) {
             for (Budget budget : budgets) {
                 if (YearMonth.from(start).equals(budget.getYearMonth())) {
-                    return budget.getAmount() / start.lengthOfMonth() * (period.getDays() + 1);
+                    return budget.getAmount() / start.lengthOfMonth() * (start.until(end).getDays() + 1);
                 }
             }
         }
 
-        int month = start.getMonthValue();
         int sum = 0;
-        int monthBudget;
         if (months > 0) {
-//            for (int i = 0; i < months; i++) {
-//                month += i;
-                String startMonth = start.format(DateTimeFormatter.ofPattern("yyyy-MM"));
-                String endMonth = end.format(DateTimeFormatter.ofPattern("yyyy-MM"));
-                for (Budget budget : budgets) {
-                    if (startMonth.equals(budget.getMonth())) {
-//                        if (i == 0) {
-                            monthBudget = budget.getAmount() / start.lengthOfMonth() * (start.lengthOfMonth() + 1 - start.getDayOfMonth());
-                            sum += monthBudget;
-//                        } else if (months == 1) {
-//                            monthBudget = end.getDayOfMonth() / daysOfEndMonth * budget.getAmount();
-//                            sum += monthBudget;
-//                        } else {
-//                            sum += budget.getAmount();
-//                        }
-                    } else if (endMonth.equals(budget.getMonth())) {
-                        sum += budget.getAmount() / end.lengthOfMonth() * (budget.getYearMonth().atDay(1).until(end).getDays() + 1);
-                    } else if (start.isBefore(budget.getYearMonth().atDay(1)) && end.isAfter(budget.getYearMonth().atEndOfMonth())) {
-                        sum += budget.getAmount();
-                    }
+            for (Budget budget : budgets) {
+                if (YearMonth.from(start).equals(budget.getYearMonth())) {
+                    sum += budget.getAmount() / start.lengthOfMonth() * (start.lengthOfMonth() + 1 - start.getDayOfMonth());
+                } else if (YearMonth.from(end).equals(budget.getYearMonth())) {
+                    sum += budget.getAmount() / end.lengthOfMonth() * (budget.getStart().until(end).getDays() + 1);
+                } else if (start.isBefore(budget.getStart()) && end.isAfter(budget.getEnd())) {
+                    sum += budget.getAmount() / budget.getStart().lengthOfMonth() * (budget.getStart().until(budget.getEnd()).getDays() + 1);
                 }
             }
-//        }
+        }
 
         return sum;
     }

@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.time.YearMonth;
 
 @Getter
@@ -24,5 +25,13 @@ public class Budget {
 
     public YearMonth getYearMonth() {
         return YearMonth.parse(month);
+    }
+
+    public LocalDate getStart() {
+        return getYearMonth().atDay(1);
+    }
+
+    public LocalDate getEnd() {
+        return getYearMonth().atEndOfMonth();
     }
 }
